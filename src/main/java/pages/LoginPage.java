@@ -13,7 +13,7 @@ public class LoginPage {
 	By usernameField = By.id("username");
 	By passwordField = By.id("password");
 	By signInButton = By.id("doLogin");
-	By letMeHack = By.cssSelector("button[class='btn btn-primary'");
+	By letMeHack = By.cssSelector("button[class='btn btn-primary']");
 	By errorContainer = By.cssSelector("[style='border: 1px solid red;']");
 	
 	WebDriver driver;

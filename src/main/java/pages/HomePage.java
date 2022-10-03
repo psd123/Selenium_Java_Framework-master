@@ -16,7 +16,7 @@ public class HomePage {
 	//add faker for methods
 	static Faker faker = new Faker();
 
-	By letMeHack = By.cssSelector("button[class='btn btn-primary'");
+	By letMeHack = By.cssSelector("button[class='btn btn-primary']");
 	By farmHouseLogo = By.cssSelector("[class='hotel-logoUrl']");
 	By signInLink = By.xpath("//a[contains(text(), 'Admin panel')]");
 	//Book room section
@@ -105,20 +105,22 @@ public class HomePage {
 		driver.findElement(bookRoomSuccessCloseButton).click();
 	}
 
-	public void fillContactUs() {
+	public String[] fillContactUs() {
 		//Create customer details
 		String[] customerDetails = CustomerClass.Customer();
 		String name = customerDetails[0] + " " + customerDetails[1];
 		String email = customerDetails[2];
 		String phone = customerDetails[3];
-		String subject = faker.lorem().sentence(2);
-		String message = faker.lorem().paragraph(4);
+		String subject = customerDetails[4];
+		String message = customerDetails[5];
 
 		driver.findElement(contactUsName).sendKeys(name);
 		driver.findElement(contactUsEmail).sendKeys(email);
 		driver.findElement(contactUsPhone).sendKeys(phone);
 		driver.findElement(contactUsSubject).sendKeys(subject);
 		driver.findElement(contactUsMessage).sendKeys(message);
+
+		return customerDetails;
 	}
 
 	public void submitContactUs() {

@@ -11,7 +11,7 @@
 		<classes>
 			<class name="tests.HomePageTest" />
 			<class name="tests.LoginPageTest" />
-<!--			<class name="tests.ForumsPageTest" />-->
+			<class name="tests.AdminPageTest" />
 <!--			<class name="tests.CheckoutTest" />-->
 		</classes>
 	</test>
