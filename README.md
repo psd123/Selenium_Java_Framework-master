@@ -1,5 +1,5 @@
 # Selenium WebDriver TestNG Framework
-Automating functional UI and end to end tests for www.oculus.com website. This project uses the page object model (POM) design. 
+Automating functional UI and end to end tests for https://automationintesting.online/ . This project uses the page object model (POM) design. 
 
 ## Stack & Libraries
 - Java
@@ -49,7 +49,7 @@ mvn --version
 ## How to run tests
 In terminal:
 ```
-git clone https://github.com/ajkim0418/Java-Selenium-TestNG-Framework.git
+git clone https://github.com/psd123/Selenium_Java_Framework-master.git
 ```
 Change directory to the location of cloned project folder and run Maven clean
 ```
