@@ -34,6 +34,21 @@ public class AdminPage {
     By roomCheckboxes = By.cssSelector("[type='checkbox']");
     By roomDetails = By.cssSelector("[class='room-details']");
     By roomEditDetailButton = By.cssSelector("button[class='btn btn-outline-primary float-right']");
+    //Edit room details
+    By roomEditNumber = By.id("roomName");
+    By roomEditType = By.id("type");
+    By roomEditAccessible = By.id("accessible");
+    By roomEditPrice = By.id("roomPrice");
+    By roomEditWifi = By.id("wifiCheckbox");
+    By roomEditTV = By.id("tvCheckbox");
+    By roomEditRadio = By.id("radioCheckbox");
+    By roomEditRefreshment = By.id("refreshmentCheckbox");
+    By roomEditSafe = By.id("safeCheckbox");
+    By roomEditViews = By.id("viewsCheckbox");
+    By roomEditDescription = By.id("description");
+    By roomEditImage = By.id("image");
+    By roomEditUpdateButton = By.id("Update");
+    By roomEditCancelButton = By.cssSelector("button[class='btn btn-outline-danger float-right']");
 
 
     //Check inbox section
@@ -131,5 +146,18 @@ public class AdminPage {
 
     public void clickRoomCreateButton() {
         driver.findElement(roomCreateButton).click();
+    }
+
+    public void clickRoomDetailsEditButton() {
+        driver.findElement(roomEditDetailButton).click();
+    }
+
+    public void editRoomByNumber(String number) {
+        driver.findElement(By.id("roomName" + number)).click();
+        driver.findElement(roomEditDetailButton).click();
+    }
+
+    public void updateRoomDescription(String description) {
+        driver.findElement(roomEditDescription).sendKeys(description);
     }
 }
