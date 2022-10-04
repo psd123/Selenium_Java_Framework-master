@@ -1,5 +1,6 @@
 package tests;
 
+import com.github.javafaker.Faker;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -16,8 +17,12 @@ import pages.LoginPage;
 import util.Methods;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Random;
 
 public class AdminPageTest extends BasePage{
+    //add faker for methods
+    static Faker faker = new Faker();
 
     @Test(priority=0)
     @Parameters({"username", "password"})
@@ -43,6 +48,7 @@ public class AdminPageTest extends BasePage{
         //Login to admin panel and compare
         logger.log(LogStatus.INFO, "Click the Admin panel link");
         homePage.clickLogInLink();
+        //login to admin section
         LoginPage login = new LoginPage(driver);
         login.clickLetMeHack();
         logger.log(LogStatus.INFO, "Entering valid username");
@@ -62,46 +68,41 @@ public class AdminPageTest extends BasePage{
         Boolean isPresent = driver.findElements(By.xpath("//*[contains(text(),'"+name.trim()+"')]")).size() > 0;
         logger.log(LogStatus.INFO, "isPresent is set to:- " + isPresent);
         if (isPresent==true) {
-            driver.findElement(By.xpath("//*[contains(text(),'" + name.trim() + "')]")).click();
+            //Click the message from the entered name in the Contact Us section
+            admin.clickInboxMessageByName(name);
             //wait for message to load
-            driver.findElement(By.cssSelector("[data-testid='message']"));
-            driver.findElement(By.xpath("//div[contains(@class,'col-10')]"));
-            //admin.inboxMessagePopUp();
+            admin.inboxMessagePopUp();
             Methods.waitForElementToContainText(driver, subject);
-            //WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
-            //wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(text(), '" + subject + "')]")));
-            //new WebDriverWait(driver, Duration.ofSeconds(2)).until(ExpectedConditions.elementToBeClickable(By.cssSelector("[class='btn btn-outline-primary']")));
-            //driver.findElement(By.cssSelector("[class='btn btn-outline-primary']"));
             //Get all the text from the message and compare
             //Name
-            String from = driver.findElement(By.xpath("//div[contains(@class,'col-10')]")).getText();
+            Methods.waitForElementToContainText(driver, name);
+            String from = admin.getInboxSelectedMessageName();
             //remove label from text
-            String actualName = from.substring(from.indexOf(": ") + 1);
+            String actualName = Methods.trimStringBefore(": ", from);
             //Compare to entered text
             Assert.assertEquals(name.trim(), actualName.trim());
             logger.log(LogStatus.PASS, "Name matches:- " + name + " = " + actualName);
             //Phone
-            String phoneNo = driver.findElement(By.xpath("//div[contains(@class,'col-2')]")).getText();
+            String phoneNo = admin.getInboxSelectedMessagePhone();
             //remove label from text
-            String actualPhoneNo = phoneNo.substring(phoneNo.indexOf(": ") + 1);
+            String actualPhoneNo = Methods.trimStringBefore(": ", phoneNo);
             //Compare to entered text
             Assert.assertEquals(phone.trim(), actualPhoneNo.trim());
             logger.log(LogStatus.PASS, "Phone matches:- " + phone + " = " + actualPhoneNo);
             //email
-            String emailAdd = driver.findElement(By.xpath("//div[contains(@class,'col-12')]")).getText();
+            String emailAdd = admin.getInboxSelectedMessageEmail();
             //remove label from text
-            String actualEmailAdd = emailAdd.substring(emailAdd.indexOf(": ") + 1);
+            String actualEmailAdd = Methods.trimStringBefore(": ", emailAdd);
             //Compare to entered text
             Assert.assertEquals(email.trim(), actualEmailAdd.trim());
             logger.log(LogStatus.PASS, "Email matches:- " + email + " = " + actualEmailAdd);
             //subject
-            var messageDetails = driver.findElement(By.cssSelector("[data-testid='message']")).getText();
+            var messageDetails = admin.getInboxMessageText();
             System.out.println("Displayed details:- " + messageDetails);
             if (messageDetails.contains(subject)) {
                 logger.log(LogStatus.PASS, "Message contains " + subject);
                 //message
                 if (messageDetails.contains(message)) {
-                    driver.findElement(By.cssSelector("[class='btn btn-outline-primary']")).click();
                     logger.log(LogStatus.PASS, "Message contains " + messageDetails);
                 } else {
                     System.out.println(message + " not found in the email:- "+ messageDetails);
@@ -116,10 +117,66 @@ public class AdminPageTest extends BasePage{
                 logger.log(LogStatus.FAIL, "Subject not found");
             }
         } else {
-            Assert.assertFalse(isPresent);
+            Assert.assertTrue(isPresent);
             logger.log(LogStatus.FAIL, "No messages found");
         }
+        //Close the inbox pop up message
+        admin.inboxCloseMessagePopUp();
+    }
 
+    @Test(priority=1)
+    public void addNewRoomAndValidate() {
+        AdminPage admin = new AdminPage(driver);
+        //select the create room link
+        admin.clickRoomsLink();
+        //add room number
+        String roomNumber = faker.number().digits(3);
+        System.out.println("Room number is set as " + roomNumber);
+        admin.addRoomNumber(roomNumber);
+        logger.log(LogStatus.INFO, "Entered room number is:- " + roomNumber);
+        //room type
+        WebElement drpRoom = admin.addRoomTypeDropdown();
+        String roomType = Methods.clickRandomListValue(drpRoom);
+        logger.log(LogStatus.INFO, "Selected room type is:- " + roomType);
+        //select accessible
+        WebElement drpAccessible = admin.addAccessibilityDropdown();
+        String roomAccessible = Methods.clickRandomListValue(drpAccessible);
+        logger.log(LogStatus.INFO, "Selected accessible type is:- " + roomAccessible);
+        //add room price, did not like using a decimal value even when set as a string
+        //double price = faker.number().randomDouble(2, 50, 300);
+        String roomPrice = faker.number().digits(3);
+        System.out.println("Room price is set as " + roomPrice);
+        admin.addRoomPrice(roomPrice);
+        logger.log(LogStatus.INFO, "Entered room price is:- " + roomPrice);
+        //select room details from radio list
+        List<String> checkboxes = Methods.selectRandomCheckboxes(admin.addRoomListCheckboxes());
+        logger.log(LogStatus.INFO, "Entered room options are:- " + checkboxes);
+        //click the create button
+        admin.clickRoomCreateButton();
+        //wait for new rooms to load
+        Methods.waitForElementToContainText(driver, roomNumber);
+        //Click the added room number
+        admin.roomSelectByNumber(roomNumber);
+        //Get room details
+        Methods.waitForElementToContainText(driver, "Description");
+        String roomDetails = admin.roomDetailsText();
+        System.out.println(roomDetails);
+        //Room number
+        Assert.assertTrue(Methods.stringContains(roomDetails, roomNumber));
+        logger.log(LogStatus.PASS, "Room number matches " + roomNumber);
+        //Room type
+        Assert.assertTrue(Methods.stringContains(roomDetails, roomType));
+        logger.log(LogStatus.PASS, "Room type matches " + roomType);
+        //Room Accessible
+        Assert.assertTrue(Methods.stringContains(roomDetails, roomAccessible));
+        logger.log(LogStatus.PASS, "Room accessibility type matches " + roomAccessible);
+        //Room price
+        Assert.assertTrue(Methods.stringContains(roomDetails, roomPrice));
+        logger.log(LogStatus.PASS, "Room price matches " + roomPrice);
+        //Room option checkboxes
+        String listString = String.join(", ", checkboxes);
+        Assert.assertTrue(Methods.stringContains(roomDetails, listString));
+        logger.log(LogStatus.PASS, "Room options matches " + checkboxes);
     }
 }
 
