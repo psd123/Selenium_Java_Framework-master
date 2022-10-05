@@ -32,7 +32,8 @@ public class Methods {
         System.out.println("Element is:- " + element);
         System.out.println("String is:- " + text);
         WebDriverWait wait = new WebDriverWait(element, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(text(), '" + text + "')]")));
+        //Deal with text that contains and apostrophe and escape it
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(text(), '" + text.replace("'","\\'") + "')]")));
     }
 
     public static String trimStringBefore(String before, String text) {
@@ -62,7 +63,8 @@ public class Methods {
     }
 
     public static boolean stringContains(String fullText, String findText) {
-        boolean contains = fullText.contains(findText);
+        //Deal with text that contains and apostrophe and escape it
+        boolean contains = fullText.contains(findText.replace("'","\\'"));
         return contains;
     }
 
