@@ -77,7 +77,8 @@ public class AdminPage {
     }
 
     public void clickInboxMessageByName(String name) {
-        driver.findElement(By.xpath("//*[contains(text(),'" + name.trim() + "')]")).click();
+        //deal with names with an apostrophe by escaping them
+        driver.findElement(By.xpath("//*[contains(text(),'" + name.trim().replace("'","\\'") + "')]")).click();
     }
 
     public void inboxMessagePopUp() {

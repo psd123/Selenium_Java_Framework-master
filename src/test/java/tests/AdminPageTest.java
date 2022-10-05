@@ -65,7 +65,7 @@ public class AdminPageTest extends BasePage{
         logger.log(LogStatus.INFO, "Click the Inbox icon");
         admin.clickInbox();
         //Check the contents of the message with the name entered in the Contact Us section
-        Boolean isPresent = driver.findElements(By.xpath("//*[contains(text(),'"+name.trim()+"')]")).size() > 0;
+        Boolean isPresent = driver.findElements(By.xpath("//*[contains(text(),'"+name.trim().replace("'","\\'")+"')]")).size() > 0;
         logger.log(LogStatus.INFO, "isPresent is set to:- " + isPresent);
         if (isPresent==true) {
             //Click the message from the entered name in the Contact Us section
@@ -80,7 +80,8 @@ public class AdminPageTest extends BasePage{
             //remove label from text
             String actualName = Methods.trimStringBefore(": ", from);
             //Compare to entered text
-            Assert.assertEquals(name.trim(), actualName.trim());
+            //Deal with name with an apostrophe by escaping
+            Assert.assertEquals(name.trim().replace("'","\\'"), actualName.trim());
             logger.log(LogStatus.PASS, "Name matches:- " + name + " = " + actualName);
             //Phone
             String phoneNo = admin.getInboxSelectedMessagePhone();
@@ -130,10 +131,11 @@ public class AdminPageTest extends BasePage{
         //select the create room link
         admin.clickRoomsLink();
         //add room number
-        String roomNumber = faker.number().digits(3);
-        System.out.println("Room number is set as " + roomNumber);
-        admin.addRoomNumber(roomNumber);
-        logger.log(LogStatus.INFO, "Entered room number is:- " + roomNumber);
+        int roomNumber = faker.number().numberBetween(102, 999);//faker.number().digits(3);
+        String roomNumberString = String.valueOf(roomNumber);
+        System.out.println("Room number is set as " + roomNumberString);
+        admin.addRoomNumber(String.valueOf(roomNumber));
+        logger.log(LogStatus.INFO, "Entered room number is:- " + roomNumberString);
         //room type
         WebElement drpRoom = admin.addRoomTypeDropdown();
         String roomType = Methods.clickRandomListValue(drpRoom);
@@ -146,6 +148,7 @@ public class AdminPageTest extends BasePage{
         //double price = faker.number().randomDouble(2, 50, 300);
         String roomPrice = faker.number().digits(3);
         System.out.println("Room price is set as " + roomPrice);
+        //enter the room price but remove any preceding zeros
         admin.addRoomPrice(roomPrice);
         logger.log(LogStatus.INFO, "Entered room price is:- " + roomPrice);
         //select room details from radio list
@@ -154,24 +157,24 @@ public class AdminPageTest extends BasePage{
         //click the create button
         admin.clickRoomCreateButton();
         //wait for new rooms to load
-        Methods.waitForElementToContainText(driver, roomNumber);
+        Methods.waitForElementToContainText(driver, roomNumberString);
         //Click the added room number
-        admin.roomSelectByNumber(roomNumber);
+        admin.roomSelectByNumber(String.valueOf(roomNumber));
         //Get room details
         Methods.waitForElementToContainText(driver, "Description");
         String roomDetails = admin.roomDetailsText();
         System.out.println(roomDetails);
-        //Room number
-        Assert.assertTrue(Methods.stringContains(roomDetails, roomNumber));
-        logger.log(LogStatus.PASS, "Room number matches " + roomNumber);
+        //Room number - remove any preceding zeros from the value entered
+        Assert.assertTrue(Methods.stringContains(roomDetails, roomNumberString));
+        logger.log(LogStatus.PASS, "Room number matches " + roomNumberString);
         //Room type
         Assert.assertTrue(Methods.stringContains(roomDetails, roomType));
         logger.log(LogStatus.PASS, "Room type matches " + roomType);
         //Room Accessible
         Assert.assertTrue(Methods.stringContains(roomDetails, roomAccessible));
         logger.log(LogStatus.PASS, "Room accessibility type matches " + roomAccessible);
-        //Room price
-        Assert.assertTrue(Methods.stringContains(roomDetails, roomPrice));
+        //Room price - remove any preceding zeros from the value entered
+        Assert.assertTrue(Methods.stringContains(roomDetails, roomPrice.replaceAll("^0+(?=.)", "")));
         logger.log(LogStatus.PASS, "Room price matches " + roomPrice);
         //Room option checkboxes
         String listString = String.join(", ", checkboxes);

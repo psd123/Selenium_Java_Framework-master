@@ -14,5 +14,4 @@
 			<class name="tests.AdminPageTest" />
 		</classes>
 	</test>
-
 </suite>
